@@ -1,0 +1,8 @@
+# CMakesFiles
+cmake*
+CMake*
+!CMakeLists.txt
+
+# Images should be included in git considering their size
+img/
+*_images/
