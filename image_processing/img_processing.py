@@ -21,6 +21,8 @@ IMG_EXT = (r'.*\.jpg',)
 IMG_EXT_RE = [re.compile(pattern) for pattern in IMG_EXT]
 IMG_DIST_GRAD ="grad_img/"
 IMG_DIST_EDGE = "edge_img/"
+IMG_DIST_ABS ="abs_img/"
+IMG_DIST_PHASE = "phase_img/"
 
 class Image(object):
     """
@@ -61,6 +63,14 @@ class Image(object):
         plt.imshow(img, **kwargs)
         plt.title(self.filename)
         plt.show()
+    
+    def fourier(self):
+        FS = np.fft.fft2(self.img_gray)
+        self.log_shift_abs = np.log(np.abs(np.fft.fftshift(FS))**2)
+        self.shift_phase = np.angle(np.fft.fftshift(FS), deg=True)
+        self.imag = np.imag(np.fft.fftshift(FS))
+        self.real = np.real(np.fft.fftshift(FS))
+
 
     def output(self, filename):
         # write the features extracted from the image on the filename
@@ -83,7 +93,11 @@ if __name__ == '__main__':
     for imgName in img_files:
         img = Image(imgName)
         img.process()
+        img.fourier()
         cv2.imwrite(IMG_DIST_GRAD+ "grad_" + imgName, img.laplacian)
         cv2.imwrite(IMG_DIST_EDGE+ "edge_" + imgName, img.edges)
+        cv2.imwrite(IMG_DIST_ABS+ "abs_" + imgName, img.log_shift_abs)
+        cv2.imwrite(IMG_DIST_PHASE+ "phase_" + imgName, img.shift_phase)
     elapsed_time = time.time() - start_time
     print elapsed_time
+
